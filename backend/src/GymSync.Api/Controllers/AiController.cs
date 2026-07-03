@@ -1,8 +1,6 @@
 using GymSync.Application.Common.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
@@ -16,6 +14,7 @@ public class AiController : ControllerBase
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _configuration;
     private readonly ILogger<AiController> _logger;
+    private static readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
 
     public AiController(
         IHttpClientFactory httpClientFactory,
@@ -43,35 +42,41 @@ public class AiController : ControllerBase
             }
 
             var systemPrompt = BuildSystemPrompt(request);
-            var userMessage = request.Message;
+            var fullPrompt = $"{systemPrompt}\n\nUser message: {request.Message}";
 
             var payload = new
             {
-                model = "gpt-4o-mini",
-                messages = new[]
+                contents = new[]
                 {
-                    new { role = "system", content = systemPrompt },
-                    new { role = "user", content = userMessage }
+                    new
+                    {
+                        parts = new[] { new { text = fullPrompt } }
+                    }
                 },
-                max_tokens = 200,
-                temperature = 0.8
+                generationConfig = new
+                {
+                    maxOutputTokens = 200,
+                    temperature = 0.8
+                }
             };
 
             var jsonPayload = JsonSerializer.Serialize(payload);
-            var httpRequest = new HttpRequestMessage(HttpMethod.Post, "https://api.openai.com/v1/chat/completions")
+            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={apiKey}";
+
+            var httpRequest = new HttpRequestMessage(HttpMethod.Post, url)
             {
                 Content = new StringContent(jsonPayload, Encoding.UTF8, "application/json")
             };
-            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
 
             var response = await _httpClient.SendAsync(httpRequest);
             response.EnsureSuccessStatusCode();
 
             var responseBody = await response.Content.ReadAsStringAsync();
-            var openAiResponse = JsonSerializer.Deserialize<OpenAiResponse>(responseBody);
+            var geminiResponse = JsonSerializer.Deserialize<GeminiResponse>(responseBody, _jsonOptions);
 
-            var reply = openAiResponse?.Choices?.FirstOrDefault()?.Message?.Content
-                ?? GetFallbackResponse(request);
+            var reply = geminiResponse?.Candidates?.FirstOrDefault()
+                ?.Content?.Parts?.FirstOrDefault()
+                ?.Text ?? GetFallbackResponse(request);
 
             return Ok(Result<AiChatResponse>.Success(new AiChatResponse
             {
@@ -173,17 +178,22 @@ public class AiChatResponse
     public string PetAnimation { get; set; } = "idle";
 }
 
-public class OpenAiResponse
+public class GeminiResponse
 {
-    public List<OpenAiChoice>? Choices { get; set; }
+    public List<GeminiCandidate>? Candidates { get; set; }
 }
 
-public class OpenAiChoice
+public class GeminiCandidate
 {
-    public OpenAiMessage? Message { get; set; }
+    public GeminiContent? Content { get; set; }
 }
 
-public class OpenAiMessage
+public class GeminiContent
 {
-    public string? Content { get; set; }
+    public List<GeminiPart>? Parts { get; set; }
+}
+
+public class GeminiPart
+{
+    public string? Text { get; set; }
 }
