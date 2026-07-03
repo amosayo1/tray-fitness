@@ -61,9 +61,11 @@ if (builder.Environment.IsDevelopment())
     });
 }
 
-var supabaseConn = Environment.GetEnvironmentVariable("SUPABASE_CONNECTION_STRING");
+var supabaseConn = builder.Configuration.GetConnectionString("SupabaseConnection");
 if (string.IsNullOrEmpty(supabaseConn))
-    supabaseConn = builder.Configuration.GetConnectionString("SupabaseConnection");
+    supabaseConn = Environment.GetEnvironmentVariable("SUPABASE_CONNECTION_STRING");
+if (string.IsNullOrEmpty(supabaseConn))
+    supabaseConn = builder.Configuration["SUPABASE_CONNECTION_STRING"];
 if (!string.IsNullOrEmpty(supabaseConn))
 {
     builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
