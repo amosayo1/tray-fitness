@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>GymSync.Application</RootNamespace>
+    <AssemblyName>GymSync.Application</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="12.4.1" />
+    <PackageReference Include="FluentValidation" Version="11.11.0" />
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0-preview.3.25171.6" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GymSync.Domain\GymSync.Domain.csproj" />
+  </ItemGroup>
+</Project>

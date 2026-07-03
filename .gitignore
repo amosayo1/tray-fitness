@@ -1,0 +1,34 @@
+# Backend
+backend/**/bin/
+backend/**/obj/
+backend/**/*.user
+backend/**/.vs/
+
+# Android
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/**/build/
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Secrets
+*.env
+appsettings.Development.json
