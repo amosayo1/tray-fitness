@@ -167,7 +167,10 @@ fun HomeScreen(
             pet = uiState.pet!!,
             userName = uiState.userDisplayName.ifEmpty { null },
             context = null,
-            onDismiss = { showPetChat = false }
+            onDismiss = { showPetChat = false },
+            onSendMessage = { msg, type, name, user, ctx, success, err ->
+                viewModel.sendPetChat(msg, type, name, user, ctx, success, err)
+            }
         )
     }
 }

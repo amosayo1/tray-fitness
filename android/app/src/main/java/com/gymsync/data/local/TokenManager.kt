@@ -2,6 +2,8 @@ package com.gymsync.data.local
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKeys
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -10,8 +12,16 @@ import javax.inject.Singleton
 class TokenManager @Inject constructor(
     @ApplicationContext context: Context
 ) {
-    private val prefs: SharedPreferences =
-        context.getSharedPreferences("gymsync_prefs", Context.MODE_PRIVATE)
+    private val prefs: SharedPreferences by lazy {
+        val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+        EncryptedSharedPreferences.create(
+            "gymsync_secure_prefs",
+            masterKeyAlias,
+            context,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+    }
 
     var accessToken: String?
         get() = prefs.getString(KEY_ACCESS_TOKEN, null)

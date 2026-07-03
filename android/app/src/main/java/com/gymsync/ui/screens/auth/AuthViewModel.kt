@@ -2,7 +2,6 @@ package com.gymsync.ui.screens.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gymsync.data.api.ApiClient
 import com.gymsync.data.local.TokenManager
 import com.gymsync.data.repository.GymSyncRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,7 +28,6 @@ class AuthViewModel @Inject constructor(
 
     init {
         if (tokenManager.isLoggedIn && tokenManager.accessToken != null) {
-            ApiClient.setToken(tokenManager.accessToken)
             _uiState.value = AuthUiState(isAuthenticated = true)
         }
     }
@@ -43,7 +41,6 @@ class AuthViewModel @Inject constructor(
                     tokenManager.accessToken = tokenResponse.accessToken
                     tokenManager.refreshToken = tokenResponse.refreshToken
                     tokenManager.isLoggedIn = true
-                    ApiClient.setToken(tokenResponse.accessToken)
                     _uiState.value = AuthUiState(isAuthenticated = true)
                 },
                 onFailure = { e ->
@@ -75,7 +72,6 @@ class AuthViewModel @Inject constructor(
                     tokenManager.accessToken = tokenResponse.accessToken
                     tokenManager.refreshToken = tokenResponse.refreshToken
                     tokenManager.isLoggedIn = true
-                    ApiClient.setToken(tokenResponse.accessToken)
                     if (petName != null && petType != null) {
                         viewModelScope.launch {
                             repository.setPet(petName, petType, petColor)
@@ -92,7 +88,6 @@ class AuthViewModel @Inject constructor(
 
     fun logout() {
         tokenManager.clear()
-        ApiClient.setToken(null)
         _uiState.value = AuthUiState()
     }
 }

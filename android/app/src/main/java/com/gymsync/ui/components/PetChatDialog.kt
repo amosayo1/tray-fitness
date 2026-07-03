@@ -64,7 +64,8 @@ fun PetChatDialog(
     pet: PetDto,
     userName: String?,
     context: String?,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onSendMessage: (String, Int, String, String?, String?, onSuccess: (String) -> Unit, onError: () -> Unit) -> Unit
 ) {
     var inputText by remember { mutableStateOf("") }
     val messages = remember { mutableStateListOf<PetChatMessage>() }
@@ -195,8 +196,8 @@ fun PetChatDialog(
                                 inputText = ""
                                 isLoading = true
 
-                                com.gymsync.data.api.ApiClient.sendPetChat(
-                                    userMsg, pet.type, pet.name, userName ?: "", context ?: "",
+                                onSendMessage(
+                                    userMsg, pet.type, pet.name, userName, context,
                                     onSuccess = { reply ->
                                         messages.add(PetChatMessage(reply, false))
                                         isLoading = false

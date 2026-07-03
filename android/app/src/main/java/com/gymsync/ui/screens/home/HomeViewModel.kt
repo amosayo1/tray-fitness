@@ -101,6 +101,27 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun sendPetChat(
+        message: String,
+        petType: Int,
+        petName: String,
+        userName: String?,
+        context: String?,
+        onSuccess: (String) -> Unit,
+        onError: () -> Unit
+    ) {
+        viewModelScope.launch {
+            repository.aiChat(message, petType, petName, userName, context).fold(
+                onSuccess = { response ->
+                    onSuccess(response.message)
+                },
+                onFailure = {
+                    onError()
+                }
+            )
+        }
+    }
+
     fun loadData() {
         val today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
 

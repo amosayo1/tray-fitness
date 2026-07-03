@@ -1,15 +1,38 @@
 using GymSync.Application.Common.Interfaces;
 using GymSync.Domain.Entities;
 using GymSync.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
 
-namespace GymSync.Api.Data;
+namespace GymSync.Infrastructure.Services;
 
-public static class SeedData
+public class DataSeederService : IHostedService
 {
-    public static async Task InitializeAsync(IApplicationDbContext context)
+    private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger<DataSeederService> _logger;
+
+    public DataSeederService(IServiceProvider serviceProvider, ILogger<DataSeederService> logger)
     {
+        _serviceProvider = serviceProvider;
+        _logger = logger;
+    }
+
+    public async Task StartAsync(CancellationToken ct)
+    {
+        using var scope = _serviceProvider.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+
+        if (context is DbContext dbContext)
+        {
+            await dbContext.Database.EnsureCreatedAsync(ct);
+        }
+
         if (context.Users.Any())
             return;
+
+        _logger.LogInformation("Seeding initial data...");
 
         var adminUser = new User
         {
@@ -182,6 +205,9 @@ public static class SeedData
         foreach (var template in templates)
             context.WorkoutTemplates.Add(template);
 
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(ct);
+        _logger.LogInformation("Seed data created successfully");
     }
+
+    public Task StopAsync(CancellationToken ct) => Task.CompletedTask;
 }

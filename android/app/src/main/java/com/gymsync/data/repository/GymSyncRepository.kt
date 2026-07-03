@@ -1,6 +1,5 @@
 package com.gymsync.data.repository
 
-import com.gymsync.data.api.ApiClient
 import com.gymsync.data.api.GymSyncApi
 import com.gymsync.data.local.TokenManager
 import com.gymsync.data.model.request.*
@@ -11,9 +10,8 @@ import javax.inject.Singleton
 @Singleton
 class GymSyncRepository @Inject constructor(
     private val tokenManager: TokenManager,
+    private val api: GymSyncApi
 ) {
-    private val api: GymSyncApi get() = ApiClient.api
-
     suspend fun login(username: String, password: String): Result<TokenResponse> = apiCall {
         api.login(LoginRequest(username, password))
     }
@@ -132,6 +130,10 @@ class GymSyncRepository @Inject constructor(
 
     suspend fun getWaterIntakes(workoutId: String? = null, lastHours: Int = 24): Result<List<WaterIntakeDto>> = apiCall {
         api.getWaterIntakes(workoutId, lastHours)
+    }
+
+    suspend fun aiChat(message: String, petType: Int, petName: String, userName: String?, context: String?): Result<AiChatResponse> = apiCall {
+        api.aiChat(AiChatRequest(message, petType, petName, userName, context))
     }
 
     private suspend fun <T> apiCall(call: suspend () -> retrofit2.Response<ApiResult<T>>): Result<T> {

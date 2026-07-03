@@ -27,7 +27,11 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, R
     {
         var storedToken = await _context.RefreshTokens
             .Include(t => t.User)
-            .FirstOrDefaultAsync(t => t.Token == request.RefreshToken && t.IsActive, ct);
+            .Where(t => t.Token == request.RefreshToken)
+            .FirstOrDefaultAsync(ct);
+
+        if (storedToken is not null && !storedToken.IsActive)
+            storedToken = null;
 
         if (storedToken is null)
             return Result.Failure<TokenResult>("Invalid or expired refresh token");

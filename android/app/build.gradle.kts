@@ -16,13 +16,34 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0.0"
+    }
 
-        val apiUrl = project.findProperty("API_URL")?.toString() ?: "http://localhost:5050"
-        buildConfigField("String", "API_BASE_URL", "\"$apiUrl/\"")
-        buildConfigField("String", "SIGNALR_URL", "\"$apiUrl/hubs/workout\"")
+    flavorDimensions += "environment"
+    productFlavors {
+        create("development") {
+            dimension = "environment"
+            val apiUrl = "http://10.0.2.2:5000"
+            buildConfigField("String", "API_BASE_URL", "\"$apiUrl/\"")
+            buildConfigField("String", "SIGNALR_URL", "\"$apiUrl/hubs/workout\"")
+        }
+        create("staging") {
+            dimension = "environment"
+            val apiUrl = "https://staging-api.gymsync.app"
+            buildConfigField("String", "API_BASE_URL", "\"$apiUrl/\"")
+            buildConfigField("String", "SIGNALR_URL", "\"$apiUrl/hubs/workout\"")
+        }
+        create("production") {
+            dimension = "environment"
+            val apiUrl = "https://api.gymsync.app"
+            buildConfigField("String", "API_BASE_URL", "\"$apiUrl/\"")
+            buildConfigField("String", "SIGNALR_URL", "\"$apiUrl/hubs/workout\"")
+        }
     }
 
     buildTypes {
+        debug {
+            isMinifyEnabled = false
+        }
         release {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
@@ -52,6 +73,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
     implementation("androidx.activity:activity-compose:1.9.3")
     implementation("androidx.navigation:navigation-compose:2.8.5")
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
 
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")

@@ -23,7 +23,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.gymsync.data.api.ApiClient
 import com.gymsync.data.local.TokenManager
 import com.gymsync.ui.components.BottomNavTab
 import com.gymsync.ui.components.GymSyncBottomNavBar
