@@ -62,17 +62,25 @@ if (builder.Environment.IsDevelopment())
 }
 
 var supabaseConn = builder.Configuration.GetConnectionString("SupabaseConnection");
-if (string.IsNullOrEmpty(supabaseConn))
+if (string.IsNullOrWhiteSpace(supabaseConn))
     supabaseConn = Environment.GetEnvironmentVariable("SUPABASE_CONNECTION_STRING");
-if (string.IsNullOrEmpty(supabaseConn))
+if (string.IsNullOrWhiteSpace(supabaseConn))
+    supabaseConn = Environment.GetEnvironmentVariable("ConnectionStrings__SupabaseConnection");
+if (string.IsNullOrWhiteSpace(supabaseConn))
     supabaseConn = builder.Configuration["SUPABASE_CONNECTION_STRING"];
-if (!string.IsNullOrEmpty(supabaseConn))
+supabaseConn = supabaseConn?.Trim();
+
+Console.Error.WriteLine($"[STARTUP] ASPNETCORE_ENVIRONMENT={builder.Environment.EnvironmentName}");
+Console.Error.WriteLine($"[STARTUP] SUPABASE_CONNECTION_STRING length={supabaseConn?.Length ?? 0}, starts with={supabaseConn?[..Math.Min(20, supabaseConn.Length)]}");
+
+if (!string.IsNullOrWhiteSpace(supabaseConn))
 {
     builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
         options.UseNpgsql(supabaseConn));
 }
 else
 {
+    Console.Error.WriteLine("[STARTUP] Using SQLite fallback (no Supabase connection string)");
     builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
         options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 }
