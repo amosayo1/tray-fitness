@@ -1,11 +1,9 @@
 services:
   - type: web
     name: gymsync-api
-    env: dotnet
+    runtime: docker
     repo: https://github.com/amosayo1/tray-fitness
     rootDir: backend
-    buildCommand: dotnet publish src/GymSync.Api/GymSync.Api.csproj -c Release -o /opt/render/project/src/out
-    startCommand: dotnet /opt/render/project/src/out/GymSync.Api.dll
     plan: free
     envVars:
       - key: SUPABASE_CONNECTION_STRING
