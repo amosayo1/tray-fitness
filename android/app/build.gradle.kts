@@ -22,7 +22,7 @@ android {
     productFlavors {
         create("development") {
             dimension = "environment"
-            val apiUrl = "http://10.0.2.2:5000"
+            val apiUrl = "http://10.0.2.2:8080"
             buildConfigField("String", "API_BASE_URL", "\"$apiUrl/\"")
             buildConfigField("String", "SIGNALR_URL", "\"$apiUrl/hubs/workout\"")
         }
@@ -34,7 +34,7 @@ android {
         }
         create("production") {
             dimension = "environment"
-            val apiUrl = "https://api.gymsync.app"
+            val apiUrl = "http://192.168.1.XXX:8080"
             buildConfigField("String", "API_BASE_URL", "\"$apiUrl/\"")
             buildConfigField("String", "SIGNALR_URL", "\"$apiUrl/hubs/workout\"")
         }
