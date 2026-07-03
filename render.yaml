@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: gymsync-api
+    env: dotnet
+    repo: https://github.com/amosayo1/tray-fitness
+    rootDir: backend
+    buildCommand: dotnet publish src/GymSync.Api/GymSync.Api.csproj -c Release -o /opt/render/project/src/out
+    startCommand: dotnet /opt/render/project/src/out/GymSync.Api.dll
+    plan: free
+    envVars:
+      - key: SUPABASE_CONNECTION_STRING
+        sync: false
+      - key: Jwt__Secret
+        sync: false
+      - key: Jwt__Issuer
+        value: GymSync
+      - key: Jwt__Audience
+        value: GymSyncMobile
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
