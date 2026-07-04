@@ -28,3 +28,7 @@
 # OkHttp
 -dontwarn okhttp3.**
 -dontwarn okio.**
+
+# SLF4J
+-dontwarn org.slf4j.impl.**
+-keep class org.slf4j.impl.** { *; }

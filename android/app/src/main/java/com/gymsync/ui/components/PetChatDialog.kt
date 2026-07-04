@@ -198,11 +198,11 @@ fun PetChatDialog(
 
                                 onSendMessage(
                                     userMsg, pet.type, pet.name, userName, context,
-                                    onSuccess = { reply ->
+                                    { reply ->
                                         messages.add(PetChatMessage(reply, false))
                                         isLoading = false
                                     },
-                                    onError = {
+                                    {
                                         val errorMsg = if (pet.type == 0)
                                             "Woof! ${pet.name}'s ears are blocked! Try again? 🐕"
                                         else
