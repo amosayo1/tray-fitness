@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -100,11 +101,11 @@ fun HomeScreen(
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(SpacingLg)
             ) {
-                item {
+                item(key = "greeting") {
                     GreetingSection(data?.myProfile?.displayName ?: "")
                 }
 
-                item {
+                item(key = "partner") {
                     PartnerStatusCards(
                         myProfile = data?.myProfile,
                         partnerProfile = data?.partnerProfile,
@@ -122,7 +123,10 @@ fun HomeScreen(
                 }
 
                 item {
-                    StepsCard(steps = uiState.steps)
+                    StepsCard(
+                        steps = uiState.steps,
+                        liveStepCount = uiState.liveStepCount
+                    )
                 }
 
                 item {
@@ -199,8 +203,11 @@ fun GreetingSection(displayName: String) {
 }
 
 @Composable
-fun StepsCard(steps: com.gymsync.data.model.response.DailyStepLogDto?) {
-    val currentSteps = steps?.steps ?: 0
+fun StepsCard(
+    steps: com.gymsync.data.model.response.DailyStepLogDto?,
+    liveStepCount: Int = 0
+) {
+    val currentSteps = if (liveStepCount > 0) liveStepCount else (steps?.steps ?: 0)
     val target = steps?.target ?: 10000
     val percent = if (target > 0) (currentSteps.toFloat() / target).coerceIn(0f, 1f) else 0f
 

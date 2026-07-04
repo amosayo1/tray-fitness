@@ -6,7 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -154,11 +155,14 @@ fun ActiveWorkoutScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             // Exercises list
+            val listState = rememberLazyListState()
+            val scrollScope = rememberCoroutineScope()
             LazyColumn(
                 modifier = Modifier.weight(1f),
+                state = listState,
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(uiState.exercises) { exercise ->
+                itemsIndexed(uiState.exercises, key = { _, e -> e.id }) { index, exercise ->
                     ExerciseCard(
                         exercise = exercise,
                         onCompleteSet = { setNumber, reps, weight, rpe ->
@@ -166,6 +170,14 @@ fun ActiveWorkoutScreen(
                         },
                         onStartRest = { seconds ->
                             viewModel.startRestTimer(seconds)
+                        },
+                        onCompleteExercise = {
+                            viewModel.completeExercise(exercise.id)
+                            if (index + 1 < uiState.exercises.size) {
+                                scrollScope.launch {
+                                    listState.animateScrollToItem(index + 1)
+                                }
+                            }
                         }
                     )
                 }
@@ -326,7 +338,8 @@ fun WorkoutStatItem(
 fun ExerciseCard(
     exercise: ExerciseUiModel,
     onCompleteSet: (Int, Int?, Double?, Int?) -> Unit,
-    onStartRest: (Int) -> Unit
+    onStartRest: (Int) -> Unit,
+    onCompleteExercise: () -> Unit = {}
 ) {
     val exerciseName = exercise.name
     val completedFraction = if (exercise.totalSets > 0)
@@ -395,6 +408,26 @@ fun ExerciseCard(
                     onStartRest = { onStartRest(90) }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            if (!isComplete) {
+                Spacer(modifier = Modifier.height(4.dp))
+                OutlinedButton(
+                    onClick = onCompleteExercise,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.CheckCircle,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Complete Exercise & Next")
+                }
             }
         }
     }

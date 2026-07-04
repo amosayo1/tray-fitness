@@ -218,6 +218,32 @@ class WorkoutViewModel @Inject constructor(
         }
     }
 
+    fun completeExercise(workoutExerciseId: String) {
+        val exercise = _uiState.value.exercises.firstOrNull { it.id == workoutExerciseId } ?: return
+        viewModelScope.launch {
+            exercise.sets.filter { !it.isCompleted }.forEach { set ->
+                repository.completeSet(
+                    _uiState.value.workoutId, workoutExerciseId,
+                    set.setNumber, set.reps ?: 10, set.weight ?: 0.0, null
+                )
+            }
+            val exercises = _uiState.value.exercises.map { ex ->
+                if (ex.id == workoutExerciseId) {
+                    val updatedSets = ex.sets.map { it.copy(isCompleted = true) }
+                    ex.copy(completedSets = updatedSets.size, sets = updatedSets)
+                } else ex
+            }
+            _uiState.value = _uiState.value.copy(
+                exercises = exercises,
+                totalVolume = exercises.sumOf { ex ->
+                    ex.sets.filter { it.isCompleted }.sumOf {
+                        (it.reps ?: 0) * (it.weight ?: 0.0).toInt()
+                    }.toInt()
+                }
+            )
+        }
+    }
+
     fun startRestTimer(seconds: Int) {
         _uiState.value = _uiState.value.copy(restTimerSeconds = seconds)
         signalR.notifyRestTimerUpdate(_uiState.value.workoutId, seconds, true)

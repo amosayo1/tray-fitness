@@ -38,7 +38,7 @@ public class DataSeederService : IHostedService
         {
             Id = Guid.NewGuid(),
             Username = "admin",
-            DisplayName = "Terry",
+            DisplayName = "Ayo",
             Email = "admin@gymsync.app",
             PasswordHash = "$2b$12$f7TX4aUQXazGkNVZVacb3e7M6TdETIgKFiUEflR5TWnADShfi/YkC",
             Status = UserStatus.Offline,
@@ -66,7 +66,7 @@ public class DataSeederService : IHostedService
         {
             Id = Guid.NewGuid(),
             Username = "ayo",
-            DisplayName = "Ayo",
+            DisplayName = "Terry",
             Email = "ayo@gymsync.app",
             PasswordHash = "$2b$12$f7TX4aUQXazGkNVZVacb3e7M6TdETIgKFiUEflR5TWnADShfi/YkC",
             Status = UserStatus.Offline,

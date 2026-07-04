@@ -17,6 +17,7 @@ object NotificationHelper {
     const val CHANNEL_PARTNER = "partner_status"
     const val CHANNEL_WATER = "water_reminder"
     const val CHANNEL_WORKOUT = "workout_updates"
+    const val CHANNEL_STEP_COUNTER = "step_counter"
 
     fun createChannels(context: Context) {
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -48,6 +49,15 @@ object NotificationHelper {
         manager.createNotificationChannel(partnerChannel)
         manager.createNotificationChannel(waterChannel)
         manager.createNotificationChannel(workoutChannel)
+
+        val stepChannel = NotificationChannel(
+            CHANNEL_STEP_COUNTER,
+            "Step Counter",
+            NotificationManager.IMPORTANCE_LOW
+        ).apply {
+            description = "Background step tracking"
+        }
+        manager.createNotificationChannel(stepChannel)
     }
 
     fun showPartnerOnlineNotification(context: Context, partnerName: String) {

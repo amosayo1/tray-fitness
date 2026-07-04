@@ -13,8 +13,11 @@ import com.gymsync.data.model.response.HomeDataResponse
 import com.gymsync.data.model.response.PetDto
 import com.gymsync.data.repository.GymSyncRepository
 import com.gymsync.service.SignalRService
+import com.gymsync.service.StepCounterService
 import com.gymsync.util.NotificationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.time.LocalDate
@@ -27,6 +30,7 @@ data class HomeUiState(
     val pet: PetDto? = null,
     val isAdmin: Boolean = false,
     val steps: DailyStepLogDto? = null,
+    val liveStepCount: Int = 0,
     val userDisplayName: String = "",
     val error: String? = null
 )
@@ -43,6 +47,8 @@ class HomeViewModel @Inject constructor(
         private set
 
     private var lastOnlineStatus: String? = null
+    private var syncJob: Job? = null
+    private var lastSyncedSteps: Int = 0
 
     init {
         uiState = uiState.copy(
@@ -51,6 +57,7 @@ class HomeViewModel @Inject constructor(
         )
         loadData()
         observePartnerStatus()
+        startStepTracking()
     }
 
     private fun isAdminFromToken(): Boolean {
@@ -97,6 +104,26 @@ class HomeViewModel @Inject constructor(
                 NotificationHelper.showPartnerWorkoutNotification(
                     application, partnerName
                 )
+            }
+        }
+    }
+
+    private fun startStepTracking() {
+        StepCounterService.start(application)
+        viewModelScope.launch {
+            StepCounterService.stepCount.collect { steps ->
+                uiState = uiState.copy(liveStepCount = steps)
+            }
+        }
+        syncJob = viewModelScope.launch {
+            while (true) {
+                delay(30000)
+                val currentSteps = StepCounterService.currentSteps
+                if (currentSteps != lastSyncedSteps) {
+                    lastSyncedSteps = currentSteps
+                    val today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+                    repository.logSteps(today, currentSteps)
+                }
             }
         }
     }
@@ -156,5 +183,11 @@ class HomeViewModel @Inject constructor(
                 onFailure = { }
             )
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        syncJob?.cancel()
+        StepCounterService.stop(application)
     }
 }
