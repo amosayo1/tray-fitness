@@ -2,6 +2,7 @@ package com.gymsync.ui.screens.home
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -76,13 +77,27 @@ fun HomeScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
+                    containerColor = Color.Transparent,
                     titleContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
         },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = Color.Transparent
     ) { padding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.background,
+                            MaterialTheme.colorScheme.surface
+                        ),
+                        startY = 0f,
+                        endY = 1200f
+                    )
+                )
+        ) {
         if (uiState.isLoading) {
             Box(
                 modifier = Modifier.fillMaxSize().padding(padding),
@@ -212,12 +227,18 @@ fun StepsCard(
     val percent = if (target > 0) (currentSteps.toFloat() / target).coerceIn(0f, 1f) else 0f
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                shape = CardShapeLarge
+            ),
         shape = CardShapeLarge,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
@@ -570,6 +591,7 @@ fun UnreadMessagesCard(count: Int, onClick: () -> Unit) {
                 tint = MaterialTheme.colorScheme.onSecondaryContainer
             )
         }
+    }
     }
 }
 
