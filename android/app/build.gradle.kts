@@ -34,7 +34,7 @@ android {
         }
         create("production") {
             dimension = "environment"
-            val apiUrl = "http://192.168.1.XXX:8080"
+            val apiUrl = "http://192.168.1.6:8080"
             buildConfigField("String", "API_BASE_URL", "\"$apiUrl/\"")
             buildConfigField("String", "SIGNALR_URL", "\"$apiUrl/hubs/workout\"")
         }
